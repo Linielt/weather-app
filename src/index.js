@@ -7,6 +7,7 @@ import partlyCloudyNightIcon from "./icons/partly-cloudy-night.png";
 import rainIcon from "./icons/rain.png";
 import snowIcon from "./icons/snow.png";
 import windIcon from "./icons/wind.png";
+import "./styles.css";
 
 const fetchWeatherData = async (location) => {
   try {
@@ -14,9 +15,10 @@ const fetchWeatherData = async (location) => {
     const response = await fetch(
       `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${location}?key=${API_KEY}`
     );
-    const weatherData = await response.json();
 
+    const weatherData = await response.json();
     const requiredWeatherData = getRequiredWeatherData(weatherData);
+
     writeWeatherDataToPage(requiredWeatherData);
     writeWeatherIconToPage(requiredWeatherData);
   } catch (error) {
@@ -47,9 +49,9 @@ const writeWeatherDataToPage = (requiredWeatherData) => {
     convertFahrenheitToCelcius(requiredWeatherData.temperature)
   );
 
-  city.textContent = requiredWeatherData.address;
+  city.textContent = capitalizeFirstLetter(requiredWeatherData.address);
   description.textContent = requiredWeatherData.description;
-  temperature.textContent = celciusTemp;
+  temperature.textContent = `${celciusTemp}°C`;
 };
 
 const writeWeatherIconToPage = (requiredWeatherData) => {
@@ -76,7 +78,27 @@ const writeWeatherIconToPage = (requiredWeatherData) => {
   } else if (iconName === "clear-night") {
     weatherIcon.src = clearNightIcon;
   }
+
   iconContainer.appendChild(weatherIcon);
+};
+
+const searchButton = document.getElementById("search-button");
+const searchBar = document.getElementById("location");
+
+searchButton.addEventListener("click", () => {
+  fetchWeatherData(searchBar.value);
+});
+
+searchBar.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    fetchWeatherData(searchBar.value);
+  }
+});
+
+const capitalizeFirstLetter = (string) => {
+  if (string.length > 0) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 };
 
 fetchWeatherData("london");
